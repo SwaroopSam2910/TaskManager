@@ -1,43 +1,97 @@
 .sidebar {
-  width: 250px;
-  background: #f4f6f9;
-  padding: 15px;
-  border-right: 1px solid #ddd;
+  width: 280px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  overflow-y: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-title {
-  margin-bottom: 10px;
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d3748;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Board list */
 .board-list {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
 /* Each board */
 .board-item {
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 6px;
+  padding: 12px 14px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.board-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+  transform-origin: center;
 }
 
 .board-item:hover {
-  background: #e0e0e0;
+  background: #f0f4ff;
+  color: #667eea;
 }
 
 /* Active board */
 .board-item.active {
-  background: #d0d7ff;
-  font-weight: bold;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  color: #667eea;
+  border-color: #667eea;
+  font-weight: 600;
+}
+
+.board-item.active::before {
+  transform: scaleY(1);
 }
 
 /* Empty text */
 .empty-text {
-  color: gray;
-  margin-top: 10px;
+  color: #a0aec0;
+  text-align: center;
+  font-size: 13px;
+  margin: 20px 0;
+}
+
+/* Scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
 }

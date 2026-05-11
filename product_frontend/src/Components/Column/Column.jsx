@@ -1,14 +1,19 @@
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "../TaskCard/TaskCard";
+import "./Column.css";
 
 function Column({ title, status, tasks, role, deleteTask, onTaskClick }) {
   return (
     <div className="column">
-      <h3>{title}</h3>
+      <div className="column-header">
+        <h3 className="column-title">{title}</h3>
+        <span className="column-count">{(tasks || []).length}</span>
+      </div>
 
       <Droppable droppableId={status}>
         {(provided) => (
           <div
+            className="task-list"
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
@@ -16,7 +21,7 @@ function Column({ title, status, tasks, role, deleteTask, onTaskClick }) {
             {(tasks || []).map((task, index) => (
               <Draggable
                 key={task.id}
-                draggableId={String(task.id)}   // 🔥 IMPORTANT
+                draggableId={String(task.id)}
                 index={index}
               >
                 {(provided) => (
