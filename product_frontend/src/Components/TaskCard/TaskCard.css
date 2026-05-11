@@ -1,0 +1,39 @@
+.task-card {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.delete-icon {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.priority {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.priority.HIGH {
+  color: red;
+}
+
+.priority.MEDIUM {
+  color: orange;
+}
+
+.priority.LOW {
+  color: green;
+}

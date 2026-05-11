@@ -1,0 +1,60 @@
+.landing-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* 🔷 Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.nav-links button {
+  margin-left: 10px;
+}
+
+/* 🔷 Body */
+.body-container {
+  display: flex;
+  flex: 1;
+}
+
+/* 🟢 Sidebar */
+.sidebar {
+  width: 250px;
+  background: #f4f6f9;
+  padding: 15px;
+  border-right: 1px solid #ddd;
+}
+
+.board-item {
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.board-item:hover {
+  background: #e0e0e0;
+}
+
+.board-item.active {
+  background: #d0d7ff;
+}
+
+/* 🔵 Main */
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  margin-top: 100px;
+  color: gray;
+}

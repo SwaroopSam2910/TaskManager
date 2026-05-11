@@ -1,0 +1,43 @@
+.sidebar {
+  width: 250px;
+  background: #f4f6f9;
+  padding: 15px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  margin-bottom: 10px;
+}
+
+/* Board list */
+.board-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Each board */
+.board-item {
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.board-item:hover {
+  background: #e0e0e0;
+}
+
+/* Active board */
+.board-item.active {
+  background: #d0d7ff;
+  font-weight: bold;
+}
+
+/* Empty text */
+.empty-text {
+  color: gray;
+  margin-top: 10px;
+}
