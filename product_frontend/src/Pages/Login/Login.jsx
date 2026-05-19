@@ -31,7 +31,7 @@ function Login() {
       const role = localStorage.getItem("role");
       console.log("ROLE:", role);
 
-      navigate("/");
+      window.location.href="/";
 
     } catch (err) {
       const msg = err.response?.data;
