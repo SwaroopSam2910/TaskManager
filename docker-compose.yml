@@ -17,6 +17,13 @@ services:
     
     networks:
       - task-manager-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health | grep UP || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
   
   frontend:
     build:
@@ -29,7 +36,8 @@ services:
       - "3030:80"
 
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     
     networks:
       - task-manager-network
