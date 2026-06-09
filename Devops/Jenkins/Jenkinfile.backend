@@ -8,5 +8,11 @@ pipeline {
                 sh 'ls -la'
             }
         }
+        stage('Docker Check') { 
+            steps { 
+                sh 'docker --version' 
+                sh 'docker ps' 
+            } 
+        }
     }
 }
