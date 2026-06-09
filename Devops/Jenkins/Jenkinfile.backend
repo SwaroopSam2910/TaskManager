@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Workspace Check') {
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
+            }
+        }
+    }
+}
