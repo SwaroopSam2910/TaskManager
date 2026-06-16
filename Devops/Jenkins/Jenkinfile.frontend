@@ -20,7 +20,7 @@ pipeline {
                 docker build \
                 -t ${IMAGE_NAME}:latest \
                 -t ${IMAGE_NAME}:${BUILD_NUMBER} \
-                ./product_backend
+                ./product_frontend
                 '''
             } 
         }
