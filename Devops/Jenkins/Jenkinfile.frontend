@@ -1,134 +1,123 @@
+def FRONTEND_CHANGED = false
+
 pipeline {
-agent any
+    agent any
 
-environment {
-    IMAGE_NAME = "swaroop2910/taskmanager-frontend"
-    FRONTEND_CHANGED = "false"
-}
+    environment {
+        IMAGE_NAME = "swaroop2910/taskmanager-frontend"
+    }
 
-stages {
+    stages {
 
-    stage('Check Frontend Changes') {
-        steps {
-            script {
+        stage('Check Frontend Changes') {
+            steps {
+                script {
+                    def changedFiles = sh(
+                        script: 'git diff --name-only HEAD~1 HEAD',
+                        returnStdout: true
+                    ).trim()
 
-                def changedFiles = sh(
-                    script: 'git diff --name-only HEAD~1 HEAD',
-                    returnStdout: true
-                ).trim()
+                    echo "Changed Files:"
+                    echo changedFiles
 
-                echo "Changed Files:"
-                echo changedFiles
+                    FRONTEND_CHANGED = changedFiles.contains('product_frontend/') ||
+                                       changedFiles.contains('Devops/Jenkins/Jenkinfile.frontend')
 
-                if (
-                    changedFiles.contains('product_frontend/') ||
-                    changedFiles.contains('Devops/Jenkins/Jenkinfile.frontend')
-                ) {
-                    env.FRONTEND_CHANGED = "true"
-                    echo "Frontend changes detected"
-                } else {
-                    echo "No frontend changes detected"
+                    if (FRONTEND_CHANGED) {
+                        echo "Frontend changes detected"
+                    } else {
+                        echo "No frontend changes detected"
+                    }
                 }
             }
         }
-    }
 
-    stage('Workspace Check') {
-        when {
-            expression {
-                env.FRONTEND_CHANGED == "true"
+        stage('Debug Env') {
+            steps {
+                script {
+                    echo "FRONTEND_CHANGED = ${FRONTEND_CHANGED}"
+                }
             }
         }
 
-        steps {
-            sh 'pwd'
-            sh 'ls -la'
-        }
-    }
-
-    stage('Build Docker Image') {
-        when {
-            expression {
-                env.FRONTEND_CHANGED == "true"
+        stage('Workspace Check') {
+            when {
+                expression { return FRONTEND_CHANGED }
+            }
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
             }
         }
 
-        steps {
-            sh '''
-                docker build \
-                -t ${IMAGE_NAME}:latest \
-                -t ${IMAGE_NAME}:${BUILD_NUMBER} \
-                ./product_frontend
-            '''
-        }
-    }
-
-    stage('Verify Image') {
-        when {
-            expression {
-                env.FRONTEND_CHANGED == "true"
+        stage('Build Docker Image') {
+            when {
+                expression { return FRONTEND_CHANGED }
             }
-        }
-
-        steps {
-            sh 'docker images'
-        }
-    }
-
-    stage('Docker Login') {
-        when {
-            expression {
-                env.FRONTEND_CHANGED == "true"
-            }
-        }
-
-        steps {
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'DOCKER_HUB_TOKEN',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )
-            ]) {
+            steps {
                 sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker build \
+                    -t ${IMAGE_NAME}:latest \
+                    -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                    ./product_frontend
                 '''
             }
         }
-    }
 
-    stage('Push Latest Image') {
-        when {
-            expression {
-                env.FRONTEND_CHANGED == "true"
+        stage('Verify Image') {
+            when {
+                expression { return FRONTEND_CHANGED }
+            }
+            steps {
+                sh 'docker images'
             }
         }
 
-        steps {
-            sh 'docker push ${IMAGE_NAME}:latest'
-        }
-    }
-
-    stage('Push Version Tag') {
-        when {
-            expression {
-                env.FRONTEND_CHANGED == "true"
+        stage('Docker Login') {
+            when {
+                expression { return FRONTEND_CHANGED }
+            }
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'DOCKER_HUB_TOKEN',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
             }
         }
 
-        steps {
-            sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+        stage('Push Latest Image') {
+            when {
+                expression { return FRONTEND_CHANGED }
+            }
+            steps {
+                sh 'docker push ${IMAGE_NAME}:latest'
+            }
+        }
+
+        stage('Push Version Tag') {
+            when {
+                expression { return FRONTEND_CHANGED }
+            }
+            steps {
+                sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+            }
         }
     }
-}
 
-post {
-    success {
-        echo 'Docker image pushed successfully'
-    }
+    post {
+        success {
+            echo 'Docker image pushed successfully'
+        }
 
-    failure {
-        echo 'Pipeline failed'
+        failure {
+            echo 'Pipeline failed'
+        }
     }
-}
 }
