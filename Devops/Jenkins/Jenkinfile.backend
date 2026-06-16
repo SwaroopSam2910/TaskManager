@@ -19,6 +19,7 @@ pipeline {
 
                     if (!changedFiles.contains('product_backend/')) {
                     currentBuild.result = 'NOT_BUILT'
+                    echo "enterted in if"
                     return
                     }
                 }    
