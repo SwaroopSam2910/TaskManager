@@ -6,6 +6,24 @@ pipeline {
     }
 
     stages {
+        stage('Check Backend Changes') {
+            steps {
+                script {
+                    def changedFiles = sh(
+                        script: 'git diff --name-only HEAD~1 HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed Files:"
+                    echo changedFiles
+
+                    if (!changedFiles.contains('product_backend/')) {
+                    currentBuild.result = 'NOT_BUILT'
+                    return
+                    }
+                }    
+            }
+        }
 
         stage('Workspace Check') {
             steps {
