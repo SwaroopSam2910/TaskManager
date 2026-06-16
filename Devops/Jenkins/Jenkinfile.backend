@@ -1,0 +1,122 @@
+def BACKEND_CHANGED = false
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "swaroop2910/taskmanager-backend"
+    }
+
+    stages {
+
+        stage('Check Backend Changes') {
+            steps {
+                script {
+                    def changedFiles = sh(
+                        script: 'git diff --name-only HEAD~1 HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed Files:"
+                    echo changedFiles
+
+                    BACKEND_CHANGED = changedFiles.contains('product_backend/')
+
+                    if (BACKEND_CHANGED) {
+                        echo "Backend changes detected"
+                    } else {
+                        echo "No backend changes detected"
+                    }
+                }
+            }
+        }
+
+        stage('Debug Env') {
+            steps {
+                script {
+                    echo "BACKEND_CHANGED = ${BACKEND_CHANGED}"
+                }
+            }
+        }
+
+        stage('Workspace Check') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
+            }
+        }
+
+        stage('Build Docker Image') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh '''
+                    docker build \
+                    -t ${IMAGE_NAME}:latest \
+                    -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                    ./product_backend
+                '''
+            }
+        }
+
+        stage('Verify Image') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'docker images'
+            }
+        }
+
+        stage('Docker Login') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'DOCKER_HUB_TOKEN',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Push Latest Image') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'docker push ${IMAGE_NAME}:latest'
+            }
+        }
+
+        stage('Push Version Tag') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Docker image pushed successfully'
+        }
+
+        failure {
+            echo 'Pipeline failed'
+        }
+    }
+}
