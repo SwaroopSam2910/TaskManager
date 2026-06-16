@@ -5,6 +5,26 @@ pipeline {
         IMAGE_NAME = "swaroop2910/taskmanager-frontend"
     }
 
+    stage('Check Frontend Changes') {
+        steps {
+            script {
+            def changedFiles = sh(
+            script: 'git diff --name-only HEAD~1 HEAD',
+            returnStdout: true
+            ).trim()
+
+            echo "Changed Files:"
+            echo changedFiles
+
+            if (!changedFiles.contains('product_frontend/')) {
+                currentBuild.result = 'NOT_BUILT'
+                error('No frontend changes detected')
+                }
+            }
+        }
+    }
+
+
     stages {
 
         stage('Workspace Check') {
