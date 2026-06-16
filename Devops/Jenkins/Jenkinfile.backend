@@ -45,7 +45,7 @@ pipeline {
             }
         }
 
-        stage(Push Version Tag){
+        stage('Push Version Tag'){
             steps{
                 sh'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
             }
