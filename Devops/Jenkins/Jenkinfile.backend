@@ -30,6 +30,13 @@ stages {
         }
     }
 
+    stage('Debug Env') {
+        steps {
+            echo "BACKEND_CHANGED = ${env.BACKEND_CHANGED}"
+            }
+        }
+
+
     stage('Workspace Check') {
         when {
             expression {
