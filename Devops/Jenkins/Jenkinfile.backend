@@ -1,138 +1,122 @@
+def BACKEND_CHANGED = false
+
 pipeline {
-agent any
+    agent any
 
-environment {
-    IMAGE_NAME = "swaroop2910/taskmanager-backend"
-    BACKEND_CHANGED = "false"
-}
+    environment {
+        IMAGE_NAME = "swaroop2910/taskmanager-backend"
+    }
 
-stages {
+    stages {
 
-    stage('Check Backend Changes') {
-        steps {
-            script {
+        stage('Check Backend Changes') {
+            steps {
+                script {
+                    def changedFiles = sh(
+                        script: 'git diff --name-only HEAD~1 HEAD',
+                        returnStdout: true
+                    ).trim()
 
-                def changedFiles = sh(
-                    script: 'git diff --name-only HEAD~1 HEAD',
-                    returnStdout: true
-                ).trim()
+                    echo "Changed Files:"
+                    echo changedFiles
 
-                echo "Changed Files:"
-                echo changedFiles
+                    BACKEND_CHANGED = changedFiles.contains('product_backend/')
 
-                if (changedFiles.contains('product_backend/')) {
-                    env.BACKEND_CHANGED = "true"
-                    echo "Backend changes detected"
-                } else {
-                    echo "No backend changes detected"
+                    if (BACKEND_CHANGED) {
+                        echo "Backend changes detected"
+                    } else {
+                        echo "No backend changes detected"
+                    }
                 }
             }
         }
-    }
 
-    stage('Debug Env') {
-        steps {
-            echo "BACKEND_CHANGED = ${env.BACKEND_CHANGED}"
+        stage('Debug Env') {
+            steps {
+                script {
+                    echo "BACKEND_CHANGED = ${BACKEND_CHANGED}"
+                }
             }
         }
 
-
-    stage('Workspace Check') {
-        when {
-            expression {
-                env.BACKEND_CHANGED == "true"
+        stage('Workspace Check') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
             }
         }
 
-        steps {
-            sh 'pwd'
-            sh 'ls -la'
-        }
-    }
-
-    stage('Build Docker Image') {
-        when {
-            expression {
-                env.BACKEND_CHANGED == "true"
+        stage('Build Docker Image') {
+            when {
+                expression { return BACKEND_CHANGED }
             }
-        }
-
-        steps {
-            sh '''
-                docker build \
-                -t ${IMAGE_NAME}:latest \
-                -t ${IMAGE_NAME}:${BUILD_NUMBER} \
-                ./product_backend
-            '''
-        }
-    }
-
-    stage('Verify Image') {
-        when {
-            expression {
-                env.BACKEND_CHANGED == "true"
-            }
-        }
-
-        steps {
-            sh 'docker images'
-        }
-    }
-
-    stage('Docker Login') {
-        when {
-            expression {
-                env.BACKEND_CHANGED == "true"
-            }
-        }
-
-        steps {
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'DOCKER_HUB_TOKEN',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )
-            ]) {
+            steps {
                 sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker build \
+                    -t ${IMAGE_NAME}:latest \
+                    -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                    ./product_backend
                 '''
             }
         }
-    }
 
-    stage('Push Latest Image') {
-        when {
-            expression {
-                env.BACKEND_CHANGED == "true"
+        stage('Verify Image') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'docker images'
             }
         }
 
-        steps {
-            sh 'docker push ${IMAGE_NAME}:latest'
-        }
-    }
-
-    stage('Push Version Tag') {
-        when {
-            expression {
-                env.BACKEND_CHANGED == "true"
+        stage('Docker Login') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'DOCKER_HUB_TOKEN',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
             }
         }
 
-        steps {
-            sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+        stage('Push Latest Image') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'docker push ${IMAGE_NAME}:latest'
+            }
+        }
+
+        stage('Push Version Tag') {
+            when {
+                expression { return BACKEND_CHANGED }
+            }
+            steps {
+                sh 'docker push ${IMAGE_NAME}:${BUILD_NUMBER}'
+            }
         }
     }
-}
 
-post {
-    success {
-        echo 'Docker image pushed successfully'
-    }
+    post {
+        success {
+            echo 'Docker image pushed successfully'
+        }
 
-    failure {
-        echo 'Pipeline failed'
+        failure {
+            echo 'Pipeline failed'
+        }
     }
-}
 }
