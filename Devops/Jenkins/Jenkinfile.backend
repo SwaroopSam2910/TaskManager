@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     IMAGE_NAME = "swaroop2910/taskmanager-backend"
     BACKEND_CHANGED = "false"
