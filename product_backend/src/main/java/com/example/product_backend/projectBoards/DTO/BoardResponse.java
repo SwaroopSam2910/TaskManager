@@ -1,6 +1,5 @@
 package com.example.product_backend.projectBoards.DTO;
 
-import com.example.product_backend.projectBoards.ENUM.BoardRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

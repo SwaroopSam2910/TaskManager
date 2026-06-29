@@ -1,7 +1,6 @@
 package com.example.product_backend.TaskManager.Controller;
 
 import com.example.product_backend.TaskManager.DTO.*;
-import com.example.product_backend.TaskManager.Entities.Task;
 import com.example.product_backend.TaskManager.Service.taskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

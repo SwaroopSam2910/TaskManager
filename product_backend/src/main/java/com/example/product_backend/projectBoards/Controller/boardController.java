@@ -1,7 +1,6 @@
 package com.example.product_backend.projectBoards.Controller;
 
 import com.example.product_backend.projectBoards.DTO.*;
-import com.example.product_backend.projectBoards.Entity.BoardMembership;
 import com.example.product_backend.projectBoards.Service.boardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
