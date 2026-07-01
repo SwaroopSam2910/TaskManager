@@ -1,4 +1,4 @@
 product_backend/src/main/resources/application-dev.properties
-Devops\Kubernates\Backend\secrets.yml
+Devops/Kubernates/Backend/secrets.yml
 .env
 .env.*
